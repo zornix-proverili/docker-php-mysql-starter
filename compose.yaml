@@ -1,0 +1,62 @@
+services:
+
+  # PHP + Apache
+  # PHP application is served by Apache.
+  # PHPアプリケーションをApacheから配信します。
+  php-apache:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Host port 8080 → Container port 80
+    # http://localhost:8080 でアクセスします。
+    ports:
+      - "8080:80"
+
+    # Mount the local source directory.
+    # ローカルのsrcディレクトリをコンテナへマウントします。
+    volumes:
+      - ./src:/var/www/html
+
+    depends_on:
+      - mysql
+
+
+  # MySQL
+  # MySQL database container.
+  # MySQLデータベース用コンテナです。
+  mysql:
+    image: mysql:8.4
+
+    # Host port 3306 → Container port 3306
+    # MySQLのポートを公開します。
+    ports:
+      - "3306:3306"
+
+    volumes:
+
+      # Run init.sql when the MySQL database is initialized.
+      # MySQLの初期化時にinit.sqlを実行します。
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+      # Persist MySQL data.
+      # MySQLのデータを永続化します。
+      - ./data:/var/lib/mysql
+
+    environment:
+
+      # MySQL root password.
+      # MySQL rootユーザーのパスワードです。
+      MYSQL_ROOT_PASSWORD: root_password
+
+      # Database created automatically.
+      # 自動的に作成するデータベースです。
+      MYSQL_DATABASE: sample_db
+
+      # Application user.
+      # アプリケーション用ユーザーです。
+      MYSQL_USER: sample_user
+
+      # Application user password.
+      # アプリケーション用ユーザーのパスワードです。
+      MYSQL_PASSWORD: sample_password
